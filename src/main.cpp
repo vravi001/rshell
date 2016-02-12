@@ -8,6 +8,27 @@
 #include <string>
 using namespace std;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void connector(vector<string> parse)
 {
 	bool pass = true;
