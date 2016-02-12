@@ -7,6 +7,42 @@
 #include <boost/tokenizer.hpp>
 #include <string>
 using namespace std;
+
+void connector(vector<string> parse)
+{
+	bool pass = true;
+	int i = 1;
+	string exec = parse.at(0);
+	execute(exec, pass);
+	while(i < parse.size())
+	{
+		if(parse.at(i) == "&")
+		{
+			if(pass)
+			{
+				exec = parse.at(i+2);
+				execute(exec, pass);
+			}
+			i = i + 3;
+		}
+		else if(parse.at(i) == "|")
+		{
+			if(!pass)
+			{	exec = parse.at(i+2);
+				execute(exec, pass);
+			}
+			i = i + 3;
+		}
+		else if(parse.at(i) == ";")
+		{
+			exec = parse.at(i+1);
+			execute(exec, pass);
+			i = i + 2;
+		}
+	}
+	return;
+}
+			
 int main()
 {
 	char hostname[150];
