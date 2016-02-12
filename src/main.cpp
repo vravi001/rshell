@@ -7,6 +7,26 @@
 #include <boost/tokenizer.hpp>
 #include <string>
 using namespace std;
+
+void execute(string command, bool &pass) {
+	int pos = command.find(" ");
+	string c1 = command.substr(pos);
+	string c0 = command.substr(0, pos);
+
+	vector<char *> v;
+	v.push_back(c0);
+	v.push_back(c1);
+
+	char **cmd = &v[0];
+	int status = execvp( v[0], cmd);
+	if (status == -1 ) {
+		pass = false;
+	}
+	else {
+		pass = true;
+	}
+}
+
 int main()
 {
 	char hostname[150];
