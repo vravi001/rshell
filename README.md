@@ -13,6 +13,6 @@ The following are a few bugs that were encountered while completing the project:
 1. The shell does not work for the command "ls", it will throw an out of range error and terminate; however, it works for "ls" with flags.
 2. The shell sometimes exits when the user enters explicitely "exit" twice; however "exit" does work well when it is included along with other commands.
 3. Please follow *this* format for entering a command:
-	<command><space><argument(s)><connector><command><space><argument(s)<connector>...
+	[command][space][argument(s)][connector][command][space][argument(s)][connector]...
 	--> Do not include a space before or after the connector.
 
