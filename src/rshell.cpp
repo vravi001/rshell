@@ -183,3 +183,245 @@ void testExecute(string command, bool &pass) {
 	delete[] x;
 	delete[] y;
 }
+
+/*This function takes in a vector ofparsed strings, a boolean variable
+ * passed by reference, and a string also passed by reference. This 
+ * function is responsible for calling the testExecute() and execute() 
+ * functions appropriately based on the pass/fail result of the functions. 
+ * It also keeps track of the symbols (or connectors) in the case of the
+ * parsed string having connectors in the end. It would use the saved 
+ * symbols (connectors) and then execute the next parsed string. It also 
+ * saves the pass/fail result of the testExecute and execute functions. */
+
+void connector(vector<string> parse, bool &pass, string &s)
+{
+	string save = s;
+	unsigned int i = 0; //changed to unsigned from int
+	string exec = parse.at(i);
+
+	while(i < parse.size())
+	{
+		if(parse.at(i).find("exit") == 0)
+		{
+			exit(0);
+		}
+
+		if((parse.at(i) == "&") || (save == "&"))
+		{
+			if((pass) && (save == "&"))
+			{	
+				exec = parse.at(i);
+				execute(exec, pass);
+				save = "";
+			}
+			else if((pass) && ((i + 2) < parse.size()))
+			{
+				exec = parse.at(i + 2);
+				execute(exec, pass);
+			}
+			else if(((i + 2) >= parse.size()) && (save != ""))
+			{
+				save = "&";
+			}
+			i = i + 3;
+		}
+		else if((parse.at(i) == "|") || (save == "|"))
+		{
+			if((!pass) && (save == "|"))
+			{
+				exec = parse.at(i);
+				execute(exec, pass);
+				save = "";
+			}
+			else if((!pass) && ((i + 2) < parse.size()))
+			{
+				exec = parse.at(i + 2);
+				execute(exec, pass);
+			}
+			else if((i + 2) >= parse.size())
+			{
+				save = "|";
+			}
+			i = i + 3;
+		}
+		else if((parse.(i) == ";") || (save == ";"))
+		{
+			if(save == ";")
+			{
+				exec = parse.at(i);
+				execute(exec, pass);
+				save = "";
+			}
+			else if((i + 1) < parse.size())
+			{
+				exec = parse.at(i + 1);
+				execute(exec, pass);
+			}
+			else
+			{
+				save = ";";
+			}
+			i = i + 2;
+		}
+		else if((parse.at(i) == "#") || (save == "#"))
+		{
+			if(save == "#")
+			{
+				i = parse.size() + 1;
+				save = "";
+			}
+			else if((i + 1) < parse.size())
+			{
+				i = parse.size() + 1;
+			}
+			else
+			{
+				save = "#";
+			}
+			i = parse.size() + 1;
+		}
+		else if((save != "|") && (save != "&") && (save != ";") && (save != "#"))
+		{
+			if((parse.at(i).find("test") == 0) || (parse.at(i).find("[") == 0))
+			{
+				exec = parse.at(i);
+				testExecute(exec, pass);
+				i = i + 1;
+			}
+			else
+			{
+				exec = parse.at(i);
+				execute(exec, pass);
+				i = i + 1;
+			}
+		}
+		else if((parse.at(i).find("test") == 0) || (parse.at(i).find("[") == 0))
+		{
+			exec = parse.at(i);
+			testExecute(exec, pass);
+			i = i + 1;
+		}
+	}
+	s = save;
+	return;
+}
+
+/*This function is used in order to parse strings. It parses 
+ * the strings based on the delimiters specified, and stores 
+ * these new tokens in a vector of strings. */
+void tokenizer(string v, vector<string> &mod)
+{
+	mod.clear();
+	typedef boost::tokenizer<boost::char_separator<char> > Tok;
+	boost::char_sepatator<shar> separ("", ";|&#");
+	Tok token(v, separ);
+	for(Tok::iterator iter = token.begin(); iter != token.end(); ++iter)
+	{
+		mod.push_back(*iter);
+	}
+	return;
+}
+
+/*This function takes in a vector of strings. The vector of strings
+ * consists of the partially parsed user input string. It then appropriately
+ * pases the strings at each position in the vector using the above
+ * tokenizer function. After, it calls the connector() function above,
+ * and keeps track of its progress. */
+
+void par(vector<string> parse)
+{
+	string s;
+	bool his = true;
+	unsigned int i = 0;
+	vector<string> mod;
+	tokenizer(parse.at(i), mod);
+	connector(mod, his, s);
+	i = i + 1;
+	while(i < parse.size())
+	{
+		if(parse.at(i) == ";")
+		{
+			i = i + 1;
+			tokenizer(parse.at(i), mod);
+			connector(mod, his, s);
+			i = i + 1;
+		}
+		else if(parse.at(i) == "||")
+		{
+			i = i + 1;
+			if(!his)
+			{
+				tokenizer(parse.at(i), mod);
+				connector(mod, his, s);
+			}
+			i = i + 1;
+		}
+		else if(parse.at(i) == "&&")
+		{
+			i = i + 1;
+			if(his)
+			{
+				tokenizer(parse.at(i), mod);
+				connector(mod, his, s);
+			}
+			i = i + 1;
+		}
+		else if(parse.at(i) == "#")
+		{
+			i = parse.size() + 1;
+		}
+		else
+		{
+			tokenizer(parse.at(i), mod);
+			connector(mod, his, s);
+			i = i + 1;
+		}
+	}
+}
+
+/*This main function uses a sentinel controlled while loop
+ * such that if the user enters a string "exit", the program
+ * will terminate. The prompt will have the username and hostname. 
+ * Then the user will enter a command string. Then, the command
+ * string will be partially parsed so that if the user enters 
+ * any parantheses, the string will be separated appropriatly.
+ * Then, the par() function is called, and we pass in the parsed 
+ * string. Then the program will execute the command and repeat until 
+ * the user enters "exit" by itself or if "exit" is embedded in
+ * the command string. */
+
+int main()
+{
+	char hostname[150];
+	gethostname(hostname, sizeof hostname);
+
+	string str;
+	cout << getlogin() << "@" << hostname << "$ ";
+	getline(cin, str);
+	cout << endl;
+	while(str != "exit")
+	{
+		vector<string> parse;
+		typedef boost::tokenizer<boost::char_separator<char> > Tok;
+		boost::char_separator<char> sep("()", "");
+		Tok tok(str, sep);
+		for(Tok::iterator tok_iter = tok.begin(); tok_iter != tok.end(); ++tok_iter)
+		{
+			parse.push_back(*tok_iter);
+		}
+		par(parse);
+		cout << getlogin() << "@" << hotname << "$ ";
+		getline(cin, str);
+		cout << endl;
+	}
+
+	return 0;
+}
+
+
+
+
+
+
+
+
