@@ -49,7 +49,7 @@ void testExecute(string command, bool &pass) {
 
 		char *x = new char[path.size() + 1];
 		copy(path.begin(), path.end(), x);
-		x[path.size()] = '\0'
+		x[path.size()] = '\0';
 		struct stat s;
 		if (flag == "-e") { //checking the -e flag
 			if (stat(x, &s) == 0) {
@@ -244,7 +244,7 @@ void connector(vector<string> parse, bool &pass, string &s)
 			}
 			i = i + 3;
 		}
-		else if((parse.(i) == ";") || (save == ";"))
+		else if((parse.at(i) == ";") || (save == ";"))
 		{
 			if(save == ";")
 			{
@@ -313,7 +313,7 @@ void tokenizer(string v, vector<string> &mod)
 {
 	mod.clear();
 	typedef boost::tokenizer<boost::char_separator<char> > Tok;
-	boost::char_sepatator<shar> separ("", ";|&#");
+	boost::char_separator<char> separ("", ";|&#");
 	Tok token(v, separ);
 	for(Tok::iterator iter = token.begin(); iter != token.end(); ++iter)
 	{
@@ -410,7 +410,7 @@ int main()
 			parse.push_back(*tok_iter);
 		}
 		par(parse);
-		cout << getlogin() << "@" << hotname << "$ ";
+		cout << getlogin() << "@" << hostname << "$ ";
 		getline(cin, str);
 		cout << endl;
 	}
